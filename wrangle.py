@@ -176,4 +176,5 @@ def wrangle():
     col_df['total_cost'] = col_df['total_cost'] * 1.0898
     col_df = col_df.dropna()
     col_df = col_df.drop(columns={'mar_with_kid', 'mar_no_kid', 'single_no_kid(income)', 'single_with_kid'})
+    col_df = col_df.rename(columns = {'isMetro': 'is_metro'})
     return col_df

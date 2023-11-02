@@ -166,7 +166,7 @@ def wrangle():
     for count in ['2p1c', '2p2c', '2p3c', '2p4c']:
         col_df.loc[col_df['family_member_count'] == count, 'median_family_income'] = col_df['mar_with_kid']
         
-    # adjusting values for inflation since original data from 2020 and new data from 2022
+    # adjusting values for inflation since original data from 2020 and new data from 2022 (Jan 2020 - Jan 2022; 8.98% inflation)
     col_df['housing_cost'] = col_df['housing_cost'] * 1.0898
     col_df['food_cost'] = col_df['food_cost'] * 1.0898
     col_df['transportation_cost'] = col_df['transportation_cost'] * 1.0898
@@ -175,11 +175,13 @@ def wrangle():
     col_df['childcare_cost'] = col_df['childcare_cost'] * 1.0898
     col_df['taxes'] = col_df['taxes'] * 1.0898
     col_df['total_cost'] = col_df['total_cost'] * 1.0898
+    
     # dropping null values and columns no longer needed
     col_df = col_df.dropna()
     col_df = col_df.drop(columns={'mar_with_kid', 'mar_no_kid', 'single_no_kid(income)', 'single_with_kid'})
     col_df = col_df.rename(columns = {'isMetro': 'is_metro'})
     col_df = col_df.drop(columns = {'is_metro'})
+    
     # changing values into integers
     col_df.housing_cost = round(col_df.housing_cost).astype(int)
     col_df.food_cost = round(col_df.food_cost).astype(int)
@@ -190,8 +192,14 @@ def wrangle():
     col_df.taxes = round(col_df.taxes).astype(int)
     col_df.total_cost = round(col_df.total_cost).astype(int)
     col_df.median_family_income = col_df.median_family_income.astype(int)
+    
     # renaming columns for easier calling
     col_df = col_df.rename(columns={'housing_cost':'housing', 'food_cost':'food', 'transportation_cost':'transportation', 
                            'healthcare_cost':'healthcare', 'other_necessities_cost':'other', 'childcare_cost':'childcare', 
                            'total_cost':'total', 'median_family_income':'median_income'})
+    # Separate family_member_count into parents and children
+    col_df['parents'] = col_df['family_member_count'].str[0].astype(int)
+    col_df['children'] = col_df['family_member_count'].str[2].astype(int)
+    # Reorder columns
+    col_df = col_df[['county', 'parents', 'children', 'housing', 'food', 'transportation', 'healthcare', 'other', 'childcare', 'taxes', 'total', 'median_income']]
     return col_df

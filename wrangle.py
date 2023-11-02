@@ -152,6 +152,23 @@ def wrangle():
     # change the format of our county columns to be the same for easier merging
     col['county'] = col.county.str.replace(' ', '_').str.lower() + '_' + col.state.str.lower()
     col = col.drop(columns = {'state', 'areaname', 'case_id'})
+    
+    # make a copy of the original dataframe to not interfere with the alternate
+    dash = col.copy()
+    dash.housing_cost = round(dash.housing_cost).astype(int)
+    dash.food_cost = round(dash.food_cost).astype(int)
+    dash.transportation_cost = round(dash.transportation_cost).astype(int)
+    dash.healthcare_cost = round(dash.healthcare_cost).astype(int)
+    dash.other_necessities_cost = round(dash.other_necessities_cost).astype(int)
+    dash.childcare_cost = round(dash.childcare_cost).astype(int)
+    dash.taxes = round(dash.taxes).astype(int)
+    dash.total_cost = round(dash.total_cost).astype(int)
+    dash = dash.dropna()
+    dash.median_family_income = dash.median_family_income.astype(int)
+        # Separate family_member_count into parents and children
+    dash['parents'] = dash['family_member_count'].str[0].astype(int)
+    dash['children'] = dash['family_member_count'].str[2].astype(int)
+
 
     # Merge the dataframes
     col_df = pd.merge(col, family, on='county', how='right')
@@ -201,5 +218,5 @@ def wrangle():
     col_df['parents'] = col_df['family_member_count'].str[0].astype(int)
     col_df['children'] = col_df['family_member_count'].str[2].astype(int)
     # Reorder columns
-    col_df = col_df[['county', 'parents', 'children', 'housing', 'food', 'transportation', 'healthcare', 'other', 'childcare', 'taxes', 'total', 'median_income']]
-    return col_df
+    cost = col_df[['county', 'parents', 'children', 'housing', 'food', 'transportation', 'healthcare', 'other', 'childcare', 'taxes', 'total', 'median_income']]
+    return cost, dash

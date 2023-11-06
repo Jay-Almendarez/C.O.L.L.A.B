@@ -156,7 +156,7 @@ def wrangle():
                      'rape1': 'rape',
                      'aggravated\nassault':'aggravated_assault',
                      'property\ncrime': 'property_crime',
-                     'larceny-\ntheft': 'larcent_theft',
+                     'larceny-\ntheft': 'larceny_theft',
                      'motor\nvehicle\ntheft':'motor_vehicle_theft'}, inplace=True)
     # Ffill msa
     fbi['msa'].fillna(method='ffill', inplace=True)

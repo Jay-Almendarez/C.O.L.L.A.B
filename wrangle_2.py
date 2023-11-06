@@ -176,5 +176,56 @@ def wrangle():
     epi_census = cost.copy()
     cost = pd.merge(cost, fbi, on='msa', how='left')
     cost = cost[cost.violent_crime.notnull()]
+    
+    
+    intern = pd.read_csv('internet.csv')
+    intern = intern.T
 
-    return cost, epi_census, fbi
+    # make the index of intern the first column
+    intern.reset_index(inplace = True)
+
+    # rename the first column to 'msa'
+    intern.rename(columns = {'index':'msa'}, inplace = True)
+
+    # in family.msa replace Metro Area!!Estimate with MSA
+    intern['msa'] = intern['msa'].str.replace('Metro Area!!Percent', 'MSA')
+
+    # in col.msa replace HUD Metro FMR Area with MSA
+    intern.msa = intern.msa.str.replace('HUD Metro FMR Area', 'MSA')
+
+    intern = intern.T
+    internet = intern[171:173]
+    edu_above_25 = intern[68:77]
+    edu_enrolled = intern[61:66]
+    joined_intern = pd.concat([internet, edu_above_25, edu_enrolled], ignore_index=True, axis = 0).T
+    intern = pd.concat([intern.T.msa, joined_intern], ignore_index=True, axis = 1)
+    intern.columns = intern.iloc[0]
+    intern = intern.drop(intern.index[0])
+    intern.columns = intern.columns.str.lower().str.replace(',', '').str.replace(' ', '_').str.strip().str.replace('(', '').str.replace(')', '').str.replace("'", "")
+    intern = intern.rename(columns={'label_grouping':'msa'})
+    intern= intern.fillna(0)
+    numerical_columns = intern.columns[1:]
+    for um in numerical_columns:
+        intern[um] = intern[um].str.strip('%').astype(float)
+    intern['less_than_high_school'] = intern['less_than_9th_grade']	+ intern['9th_to_12th_grade_no_diploma']
+    intern['high_school_to_associates'] = intern['high_school_graduate_includes_equivalency'] + intern['some_college_no_degree'] + intern['associates_degree']
+    intern['bachelors_plus'] = intern['bachelors_degree'] + intern['graduate_or_professional_degree']
+    intern = intern.drop(columns = {'less_than_9th_grade', '9th_to_12th_grade_no_diploma',
+           'high_school_graduate_includes_equivalency', 'some_college_no_degree',
+           'associates_degree', 'bachelors_degree',
+           'graduate_or_professional_degree', 'high_school_graduate_or_higher',
+           'bachelors_degree_or_higher'})
+    intern = intern.rename(columns = {'label_grouping':'msa', 'with_a_computer':'homes_with_computer',
+                             'with_a_broadband_internet_subscription':'homes_with_internet',  
+                             'nursery_school_preschool': 'in_preschool', 'kindergarten': 'in_kindergarten', 'elementary_school_grades_1-8': 'in_junior_high', 
+                             'high_school_grades_9-12': 'in_high_school', 'college_or_graduate_school': 'in_college_plus' })
+
+    
+    
+    ####### Merge intern to Cost #########
+    cost = pd.merge(cost, intern, on='msa', how='left')
+    cost = cost[cost.violent_crime.notnull()]
+
+    cost = cost.drop(columns = {'population'})
+    
+    return cost, epi_census, fbi, intern

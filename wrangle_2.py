@@ -180,7 +180,14 @@ def wrangle():
     cost = pd.merge(cost, fbi, on='msa', how='left')
     cost = cost[cost.violent_crime.notnull()]
     
+    # fix dtypes for the columns from FBI
+    cost = cost.drop(columns = {'counties/principal cities'})
+    columns = ['violent_crime', 'murder_and_nonnegligent_manslaughter', 'rape', 'robbery', 'aggravated_assault', 'property_crime', 'burglary', 'larceny_theft', 'motor_vehicle_theft']
+
+    for col in columns:
+        cost[col] = cost[col].str.replace(',', '').astype(float)
     
+    ####### Internet #########
     intern = pd.read_csv('internet.csv')
     intern = intern.T
 

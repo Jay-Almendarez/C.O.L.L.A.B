@@ -94,6 +94,9 @@ def wrangle():
     
     # in family.msa replace Metro Area!!Estimate with MSA
     family['msa'] = family['msa'].str.replace('Metro Area!!Estimate', 'MSA')
+    family.msa = family.msa.str.replace('Nashville-Davidson--Murfreesboro--Franklin, TN MSA', 'Nashville-Davidson–Murfreesboro–Franklin, TN MSA')
+    family.msa = family.msa.str.replace('Scranton--Wilkes-Barre, PA MSA',
+                                        'Scranton–Wilkes-Barre, PA MSA')
     
     # merge col and family
     col_df = pd.merge(col, family, on = 'msa', how = 'right')
@@ -162,9 +165,16 @@ def wrangle():
     fbi = fbi[fbi['counties/principal cities'] == 'Rate per 100,000 inhabitants']
     # format fbi.msa to merge onto cost
     fbi.msa = fbi.msa.str.replace('M.S.A.', 'MSA')
+    fbi.msa = fbi.msa.str.replace('M.S.A', 'MSA')
     fbi['msa'] = fbi['msa'].replace(r'MSA\d+$', 'MSA', regex=True)
+    fbi.msa = fbi.msa.str.replace('MSA2, 3', 'MSA')
+    fbi.msa = fbi.msa.str.replace('MSA3, 4', 'MSA')
+    fbi.msa = fbi.msa.str.replace('Poughkeepsie-Newburg-Middletown', 'Poughkeepsie-Newburgh-Middletown')
+    
 
     ####### Merge FBI to Cost #########
+    epi_census = cost.copy()
     cost = pd.merge(cost, fbi, on='msa', how='left')
+    cost = cost[cost.violent_crime.notnull()]
 
-    return cost
+    return cost, epi_census, fbi

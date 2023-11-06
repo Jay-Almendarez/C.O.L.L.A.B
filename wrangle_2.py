@@ -141,4 +141,30 @@ def wrangle():
     # Reorder Columns
     cost = col_df[['msa', 'parents', 'children', 'housing', 'food', 'transportation', 'healthcare', 'other', 'childcare', 'taxes', 'total', 'median_family_income']]
     
+    ####### Clean the FBI Data #######
+    # acquire fbi data
+    fbi = pd.read_csv('fbi_table6_2019.csv')
+    # Make column names of fbi lowercase
+    fbi.columns = fbi.columns.str.lower()
+    # Rename columns
+    fbi.rename(columns= {'metropolitan statistical area': 'msa',
+                     'violent\ncrime': 'violent_crime',
+                     'murder and\nnonnegligent\nmanslaughter': 'murder_and_nonnegligent_manslaughter',
+                     'rape1': 'rape',
+                     'aggravated\nassault':'aggravated_assault',
+                     'property\ncrime': 'property_crime',
+                     'larceny-\ntheft': 'larcent_theft',
+                     'motor\nvehicle\ntheft':'motor_vehicle_theft'}, inplace=True)
+    # Ffill msa
+    fbi['msa'].fillna(method='ffill', inplace=True)
+
+    # drop all rows from fbi where fbi['counties/principal cities'] != Rate per 100,000 inhabitants
+    fbi = fbi[fbi['counties/principal cities'] == 'Rate per 100,000 inhabitants']
+    # format fbi.msa to merge onto cost
+    fbi.msa = fbi.msa.str.replace('M.S.A.', 'MSA')
+    fbi['msa'] = fbi['msa'].replace(r'MSA\d+$', 'MSA', regex=True)
+
+    ####### Merge FBI to Cost #########
+    cost = pd.merge(cost, fbi, on='msa', how='left')
+
     return cost

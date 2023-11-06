@@ -121,6 +121,9 @@ def wrangle():
     col_df['childcare'] = col_df['childcare'] * 1.0898
     col_df['taxes'] = col_df['taxes'] * 1.0898
     col_df['total'] = col_df['total'] * 1.0898
+    
+    # add affordability ration column to col_df
+    col_df['affordability_ratio'] = round(col_df.median_family_income / col_df.total, 2)
 
     # dropping null values and columns no longer needed
     col_df = col_df.dropna()
@@ -142,7 +145,7 @@ def wrangle():
     col_df['children'] = col_df['family'].str[2].astype(int)
 
     # Reorder Columns
-    cost = col_df[['msa', 'parents', 'children', 'housing', 'food', 'transportation', 'healthcare', 'other', 'childcare', 'taxes', 'total', 'median_family_income']]
+    cost = col_df[['msa', 'parents', 'children', 'housing', 'food', 'transportation', 'healthcare', 'other', 'childcare', 'taxes', 'total', 'median_family_income', 'affordability_ratio']]
     
     ####### Clean the FBI Data #######
     # acquire fbi data

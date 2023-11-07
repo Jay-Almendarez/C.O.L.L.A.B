@@ -11,6 +11,8 @@ def wrangle():
     # Acquire Census Data
     family_income = pd.read_csv('B19126_msa_2022.csv')
     family_count = pd.read_csv('DP02_msa_2022.csv')
+    # Acquire Commute Data
+    commute = pd.read_csv('B08303_2022_commute.csv')
     
     # grab the indices 6 and 7 from the dataset and store as male
     male = family_count[6:8]
@@ -122,7 +124,7 @@ def wrangle():
     col_df['taxes'] = col_df['taxes'] * 1.0898
     col_df['total'] = col_df['total'] * 1.0898
     
-    # add affordability ration column to col_df
+    # add affordability ratio column to col_df
     col_df['affordability_ratio'] = round(col_df.median_family_income / col_df.total, 2)
 
     # dropping null values and columns no longer needed
@@ -146,6 +148,38 @@ def wrangle():
 
     # Reorder Columns
     cost = col_df[['msa', 'parents', 'children', 'housing', 'food', 'transportation', 'healthcare', 'other', 'childcare', 'taxes', 'total', 'median_family_income', 'affordability_ratio']]
+    
+    ####### Prep commute data #######
+    commute = commute.T
+    commute.reset_index(inplace=True)
+    commute.columns = commute.iloc[0]
+    commute = commute.iloc[1:]
+    commute.rename(columns={'Label (Grouping)':'msa',
+                            'Total:':'total_commute',
+                            '\xa0\xa0\xa0\xa0Less than 5 minutes': 'under_5',
+                            '\xa0\xa0\xa0\xa05 to 9 minutes': '5-9',
+                            '\xa0\xa0\xa0\xa010 to 14 minutes': '10-14',
+                            '\xa0\xa0\xa0\xa015 to 19 minutes': '15-19',
+                            '\xa0\xa0\xa0\xa020 to 24 minutes': '20-24',
+                            '\xa0\xa0\xa0\xa025 to 29 minutes': '25-29',
+                            '\xa0\xa0\xa0\xa030 to 34 minutes': '30-34',
+                            '\xa0\xa0\xa0\xa035 to 39 minutes': '35-39',
+                            '\xa0\xa0\xa0\xa040 to 44 minutes': '40-44', 
+                            '\xa0\xa0\xa0\xa045 to 59 minutes': '45-59',
+                            '\xa0\xa0\xa0\xa060 to 89 minutes': '60-89',
+                            '\xa0\xa0\xa0\xa090 or more minutes': '90+'}, inplace=True)
+    commute.msa = commute.msa.str.replace('Metro Area!!Estimate', 'MSA')
+    commute.msa = commute.msa.str.replace('Micro Area!!Estimate', 'MSA')
+
+    columns = ['total_commute', 'under_5', '5-9', '10-14', '15-19', '20-24',
+       '25-29', '30-34', '35-39', '40-44', '45-59', '60-89', '90+']
+    for col in columns:
+        commute[col] = commute[col].str.replace(',', '').astype(float)
+    
+    # Estimate an average commute time for each MSA by multiply the count of commuters by the midpoint of the range and dividing by the total number of commuters  
+    commute['est_commute'] = (commute['under_5'] * 2.5 + commute['5-9'] * 7 + commute['10-14'] * 12 + commute['15-19'] * 17 + commute['20-24'] * 22 + commute['25-29'] * 27 + commute['30-34'] * 32 + commute['35-39'] * 37 + commute['40-44'] * 42 + commute['45-59'] * 52 + commute['60-89'] * 74.5 + commute['90+'] * 90)/commute['total_commute']
+    ## Merge commute to cost
+    cost = pd.merge(cost, commute, on='msa', how='left')
     
     ####### Clean the FBI Data #######
     # acquire fbi data
@@ -238,4 +272,4 @@ def wrangle():
 
     cost = cost.drop(columns = {'population'})
     
-    return cost, epi_census, fbi, intern
+    return cost, epi_census, fbi, intern, commute

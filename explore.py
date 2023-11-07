@@ -30,3 +30,19 @@ def plot_family_histograms(dataframes, column_name):
 
     plt.tight_layout()
     plt.show()
+    
+    
+def plot_COST_histograms(df, columns):
+    fig, axs = plt.subplots(len(columns), 1, figsize=(10, 5*len(columns)))
+
+    for i, column_name in enumerate(columns):
+        df_column = df[column_name].replace([np.inf, -np.inf], np.nan)
+        axs[i].hist(df_column.dropna(), bins=30, edgecolor='black')
+        axs[i].set_title(f'{column_name}')
+        axs[i].set_xlabel(column_name)
+        axs[i].set_ylabel('Frequency')
+        x_min, x_max = df_column.min(), df_column.max()
+        axs[i].set_xlim(x_min, x_max)
+
+    plt.tight_layout()
+    plt.show()

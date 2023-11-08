@@ -69,10 +69,6 @@ The United States of America is a huge place, full of countless areas unique in 
 | bachelors_plus | Percent of area population with bachelors or higher education |
 | family_type | Unique family type breakdown for MSA |
 
-## Summary
-
-- 
-- 
 <hr style="border:2px solid black"> 
 
 
@@ -109,8 +105,11 @@ Plan --> Acquire --> Prepare --> Explore --> Model --> Deliver
  
 ### <u>Recommendations:</u>
 
->* I
+>* Affordability is extremely important, but considering outside factors can help shape the ideal community for you.
+>* Families should keep an open mind when looking at ideal places to move to. (Maybe what's best for your family is somewhere you never imagined yourself living)
 
 ### <u>Next Steps:</u>
 
->* P
+>* Find additional dataframes to continue adding possible features for families to select
+>* Take analysis to county level for increased granularity
+>* Develop dashboard into website or app for easier access

@@ -6,7 +6,7 @@ The United States of America is a huge place, full of countless areas unique in 
 
 ## Goals: 
 * Create an interactive dashboard to assist families with moving
-* Create and implement additional fetures like safety measure, commute time, and internet accessibility 
+* Create and implement additional features like safety measure, commute time, and internet accessibility 
 
 <hr style="border:2px solid black">
 

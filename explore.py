@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
 
 def plot_family_histograms(dataframes, column_name):
     single_types = [f'single_{i}_child' for i in range(5)]
@@ -46,3 +49,67 @@ def plot_COST_histograms(df, columns):
 
     plt.tight_layout()
     plt.show()
+    
+def cluster_dataframes(df_list, features, n_clusters, scaler=MinMaxScaler(), cluster_algo=KMeans(), plot=False):
+    # Scale the specified columns
+    def scale_columns(df_list, scaler=MinMaxScaler()):
+        for df in df_list:
+            scaled_columns = df[df.columns.difference(['msa'])]
+            scaled_values = scaler.fit_transform(scaled_columns)
+            for col, values in zip(scaled_columns.columns, scaled_values.T):
+                df[f'{col}_scaled'] = values
+        return df_list
+
+    df_list = scale_columns(df_list, scaler)
+    
+    for df in df_list:
+        # Select the features to cluster
+        X = df[[f'{feature}_scaled' for feature in features]]
+        
+        # Fit the clustering algorithm and predict the clusters
+        cluster_algo.set_params(n_clusters=n_clusters)
+        clusters = cluster_algo.fit_predict(X)
+        
+        # Add the clusters to the original dataframe
+        df['cluster'] = clusters
+        
+        if plot:
+            # Plot the clusters on 'affordability', 'violent_crime', and 'est_commute'
+            plt.figure(figsize=(13, 7))
+            sns.pairplot(data=df, vars=['affordability_ratio','violent_crime','est_commute'], hue='cluster', palette='RdYlGn')
+            plt.show()
+    
+    return
+
+
+def cluster_dataframes(df_list, features, df_names, n_clusters=3, scaler=MinMaxScaler(), cluster_algo=KMeans(), plot=False):
+    # Scale the specified columns
+    def scale_columns(df_list, scaler=MinMaxScaler()):
+        for df in df_list:
+            scaled_columns = df[df.columns.difference(['msa'])]
+            scaled_values = scaler.fit_transform(scaled_columns)
+            for col, values in zip(scaled_columns.columns, scaled_values.T):
+                df[f'{col}_scaled'] = values
+        return df_list
+
+    df_list = scale_columns(df_list, scaler)
+    
+    for i, df in enumerate(df_list):
+        # Select the features to cluster
+        X = df[[f'{feature}_scaled' for feature in features]]
+        
+        # Fit the clustering algorithm and predict the clusters
+        cluster_algo.set_params(n_clusters=n_clusters)
+        clusters = cluster_algo.fit_predict(X)
+        
+        # Add the clusters to the original dataframe
+        df['cluster'] = clusters
+        
+        if plot:
+            # Plot the clusters on 'affordability', 'violent_crime', and 'est_commute'
+            pairplot = sns.pairplot(data=df, vars=['affordability_ratio','violent_crime','est_commute', 'property_crime'], hue='cluster', palette='RdYlGn')
+            if df_names:
+                pairplot.fig.suptitle(f'Clusters for {df_names[i]}', y=1.02)  # y=1.02 raises the title slightly
+            else:
+                pairplot.fig.suptitle(f'Clusters for DataFrame {i+1}', y=1.02)
+            plt.show()

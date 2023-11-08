@@ -269,7 +269,7 @@ def wrangle():
     ####### Merge intern to Cost #########
     cost = pd.merge(cost, intern, on='msa', how='left')
     cost = cost[cost.violent_crime.notnull()]
-
     cost = cost.drop(columns = {'population'})
+    cost = cost.dropna()
     
     return cost, epi_census, fbi, intern, commute

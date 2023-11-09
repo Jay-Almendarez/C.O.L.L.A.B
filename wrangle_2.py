@@ -282,9 +282,20 @@ def wrangle():
     pop.msa = pop.msa.str.replace('Metro Area','MSA')
     pop = pop.drop(columns = {'4/1/2010 population estimates base!!Population', '4/1/2010 Census population!!Population'})
     pop = pop.T
-    pop.index = pop.index.str.replace('estimate!!Population','')
+    pop.index = pop.index.str.replace(' estimate!!Population','')
     pop.index = pop.index.str.replace('7/1/','')
+    pop.index = pop.index.str.replace(' ', '_')
     pop = pop.T
+    pop['2010_population'] = pop['2010_population'].str.replace(',','').astype(int)
+    pop['2011_population'] = pop['2011_population'].str.replace(',','').astype(int)
+    pop['2012_population'] = pop['2012_population'].str.replace(',','').astype(int)
+    pop['2013_population'] = pop['2013_population'].str.replace(',','').astype(int)
+    pop['2014_population'] = pop['2014_population'].str.replace(',','').astype(int)
+    pop['2015_population'] = pop['2015_population'].str.replace(',','').astype(int)
+    pop['2016_population'] = pop['2016_population'].str.replace(',','').astype(int)
+    pop['2017_population'] = pop['2017_population'].str.replace(',','').astype(int)
+    pop['2018_population'] = pop['2018_population'].str.replace(',','').astype(int)
+    pop['2019_population'] = pop['2019_population'].str.replace(',','').astype(int)
     
     ####### Merge Population to Cost #########
     cost = pd.merge(cost, pop, on='msa', how='left')

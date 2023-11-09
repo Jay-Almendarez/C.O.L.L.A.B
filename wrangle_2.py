@@ -102,8 +102,6 @@ def wrangle():
     
     # merge col and family
     col_df = pd.merge(col, family, on = 'msa', how = 'right')
-    # adding line to grab dataframe as csv
-    full_msa = col_df.copy()
     
     # Replace 'median_family_income' where 'family_member_count' is '1p0c'
     col_df.loc[col_df['family'] == '1p0c', 'median_family_income'] = col_df['single_no_kid(income)']
@@ -254,6 +252,7 @@ def wrangle():
     for um in numerical_columns:
         intern[um] = intern[um].str.strip('%').astype(float)
     intern['less_than_high_school'] = intern['less_than_9th_grade']	+ intern['9th_to_12th_grade_no_diploma']
+    intern['highschool_grad_rate'] = 100 - intern['less_than_high_school']
     intern['high_school_to_associates'] = intern['high_school_graduate_includes_equivalency'] + intern['some_college_no_degree'] + intern['associates_degree']
     intern['bachelors_plus'] = intern['bachelors_degree'] + intern['graduate_or_professional_degree']
     intern = intern.drop(columns = {'less_than_9th_grade', '9th_to_12th_grade_no_diploma',
@@ -273,6 +272,7 @@ def wrangle():
     cost = cost[cost.violent_crime.notnull()]
 
     cost = cost.drop(columns = {'population'})
+    cost = cost.dropna()
     
     
     ####### Population #########

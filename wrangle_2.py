@@ -102,6 +102,8 @@ def wrangle():
     
     # merge col and family
     col_df = pd.merge(col, family, on = 'msa', how = 'right')
+    # adding line to grab dataframe as csv
+    full_msa = col_df.copy()
     
     # Replace 'median_family_income' where 'family_member_count' is '1p0c'
     col_df.loc[col_df['family'] == '1p0c', 'median_family_income'] = col_df['single_no_kid(income)']
@@ -269,7 +271,22 @@ def wrangle():
     ####### Merge intern to Cost #########
     cost = pd.merge(cost, intern, on='msa', how='left')
     cost = cost[cost.violent_crime.notnull()]
+
     cost = cost.drop(columns = {'population'})
-    cost = cost.dropna()
     
-    return cost, epi_census, fbi, intern, commute
+    
+    ####### Population #########
+    pop = pd.read_csv('pop.csv')
+    pop.rename(columns = {'Geographic Area Name (Grouping)' :'msa'}, inplace=True)
+    pop.msa = pop.msa.str.replace('Micro Area','MSA')
+    pop.msa = pop.msa.str.replace('Metro Area','MSA')
+    pop = pop.drop(columns = {'4/1/2010 population estimates base!!Population', '4/1/2010 Census population!!Population'})
+    pop = pop.T
+    pop.index = pop.index.str.replace('estimate!!Population','')
+    pop.index = pop.index.str.replace('7/1/','')
+    pop = pop.T
+    
+    ####### Merge Population to Cost #########
+    cost = pd.merge(cost, pop, on='msa', how='left')
+    
+    return cost, epi_census, fbi, intern, commute, pop

@@ -1,4 +1,4 @@
-# C.O.L.L.A.B
+# Smart Moves: Guiding Your Way Home
 <hr style="border:2px solid black">
 
 ## <u>Project Description</u>
